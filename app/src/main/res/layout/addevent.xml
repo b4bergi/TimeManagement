@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
 
     <TextView
@@ -11,9 +12,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+
     <DatePicker
-        android:id="@+id/datepicker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-    </DatePicker>
+        android:layout_height="wrap_content"
+        android:id="@+id/Datepicker"
+        android:layout_weight="1" />
+
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/numberPicker"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"/>
+
 </LinearLayout>
