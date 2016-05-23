@@ -7,16 +7,24 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Runnable{
     Socket socket;
     String ip="10.10.107.24";
     int port=1234;
     BufferedWriter bw;
+    BufferedReader br;
+    String gruppe;
 
 
 
@@ -31,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             socket=new Socket(ip, port);
             bw=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
+            br=new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
           
         } catch (IOException e) {
@@ -43,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.optionmenu,menu);
+        getMenuInflater().inflate(R.menu.optionmenu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -51,18 +59,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.menuAdd:
-                testMethode();
+                add();
                 break;
             case R.id.menuChooseGroup:
                 break;
             case R.id.menuGroupUpdate:
-                try {
-                    Log.v("++++", "refresh log");
-                    bw.write("refresh:gruppe \r\n");
-                    bw.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                refresh();
                 break;
             default:
                 return false;
@@ -70,17 +72,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void testMethode() {
-
-
+    private void refresh() {
         try {
 
+            bw.write("refresh:gruppe \r\n");
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-
+    private void add() {
+        try {
+            Thread t=new Thread(this);
+            t.start();
            bw.write("add:name;datum;tagev;notiz:gruppe \r\n");
-
-
-
             bw.flush();
         } catch (IOException ex) {
            ex.printStackTrace();
@@ -112,5 +118,27 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         super.onPause();
+    }
+
+    @Override
+    public void run() {
+
+        while (true) {
+
+            try {
+                Date d=null;
+                String ev=br.readLine();
+                String []events=ev.split(":");
+                SimpleDateFormat sdf=new SimpleDateFormat("dd-MM-yyyy");
+                try {
+                     d= sdf.parse(events[2]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Event e=new Event(events[0],events[1], d ,Integer.parseInt(events[3]));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
