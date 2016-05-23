@@ -10,34 +10,14 @@ import android.view.MenuItem;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
 import java.net.Socket;
 
 public class MainActivity extends AppCompatActivity {
     Socket socket;
-    String ip="10.0.0.131";
+    String ip="10.10.107.24";
     int port=1234;
     BufferedWriter bw;
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.optionmenu,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()){
-            case R.id.add:
-
-
-                testMethode();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
 
 
@@ -50,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             socket=new Socket(ip, port);
+            bw=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
 
           
@@ -59,6 +40,36 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.optionmenu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.menuAdd:
+                testMethode();
+                break;
+            case R.id.menuChooseGroup:
+                break;
+            case R.id.menuGroupUpdate:
+                try {
+                    Log.v("++++", "refresh log");
+                    bw.write("refresh:gruppe \r\n");
+                    bw.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            default:
+                return false;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void testMethode() {
 
 
@@ -66,12 +77,40 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-            bw.write("add:asddfa;df \r\n");
+           bw.write("add:name;datum;tagev;notiz:gruppe \r\n");
+
+
 
             bw.flush();
         } catch (IOException ex) {
            ex.printStackTrace();
         }
 
+    }
+
+    @Override
+    protected void onStart() {
+        try {
+            socket=new Socket(ip, port);
+            bw=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+
+
+        } catch (IOException e) {
+            Log.e("----", "Fehler try");
+            e.printStackTrace();
+        }
+        super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        try {
+            socket.close();
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        super.onPause();
     }
 }
