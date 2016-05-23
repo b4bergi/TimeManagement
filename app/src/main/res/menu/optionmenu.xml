@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-<item android:id="@+id/add" android:title="Hinzufügen" android:showAsAction="never"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menuAdd" android:title="Hinzufügen" android:showAsAction="never"/>
+    <item android:id="@+id/menuChooseGroup" android:title="Gruppenauswahl" app:showAsAction="never"/>
+    <item android:id="@+id/menuGroupUpdate" android:title="Gruppentermine" app:showAsAction="never"/>
 </menu>

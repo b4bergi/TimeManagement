@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">TimeManagement</string>
+    <string name="tvAdd">Eventname:</string>
 </resources>
