@@ -1,6 +1,7 @@
 package com.example.dberghammer.timemanagement;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
@@ -43,7 +44,14 @@ public class addEventClass extends Activity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        
+
         Event e=new Event(snotiz,sname,d,tagev);
+        Intent intent =new Intent();
+
+        intent.putExtra("name",sname);
+        intent.putExtra("date",d);
+        intent.putExtra("tagev",tagev);
+        intent.putExtra("note",snotiz);
+        finish();
     }
 }

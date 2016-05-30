@@ -1,11 +1,15 @@
 package com.example.dberghammer.timemanagement;
 
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SimpleCursorAdapter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,7 +28,10 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     int port=1234;
     BufferedWriter bw;
     BufferedReader br;
-    String gruppe;
+    String gruppe="gruppe";
+    Event e=null;
+    DBHelper dbh;
+    SQLiteDatabase db;
 
 
 
@@ -33,6 +40,14 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        dbh=new DBHelper(this);
+        db=dbh.getReadableDatabase();
+        Cursor cursor = db.query(NotizenTable.TABLE_NAME, column, null, null, null,
+                null, null);
+
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
+                R.layout.history_list_row, cursor, from, to);
+
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
 
 
@@ -74,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
     private void refresh() {
         try {
+            Thread t=new Thread(this);
+            t.start();
 
             bw.write("refresh:gruppe \r\n");
             bw.flush();
@@ -84,9 +101,10 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
     private void add() {
         try {
-            Thread t=new Thread(this);
-            t.start();
-           bw.write("add:name;datum;tagev;notiz:gruppe \r\n");
+            Intent i=new Intent(this, addEventClass.class);
+            startActivityForResult(i,123 );
+
+           bw.write("add:"+e.getName()+";"+e.getD()+";"+e.getTagev()+";"+e.getNotiz()+":"+gruppe+" \r\n");
             bw.flush();
         } catch (IOException ex) {
            ex.printStackTrace();
@@ -107,6 +125,17 @@ public class MainActivity extends AppCompatActivity implements Runnable{
             e.printStackTrace();
         }
         super.onStart();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+       Bundle extras =data.getExtras();
+        String name=extras.getString("name");
+        Date date=(Date)data.getSerializableExtra("date");
+        int tagev=extras.getInt("tagev");
+        String note=extras.getString("note");
+        e=new Event(note,name,date,tagev);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

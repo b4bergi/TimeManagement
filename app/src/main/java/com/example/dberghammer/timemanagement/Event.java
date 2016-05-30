@@ -16,5 +16,38 @@ public class Event {
         this.name = name;
         this.d = d;
         this.tagev = tagev;
+
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Date getD() {
+        return d;
+    }
+
+    public void setD(Date d) {
+        this.d = d;
+    }
+
+    public int getTagev() {
+        return tagev;
+    }
+
+    public void setTagev(int tagev) {
+        this.tagev = tagev;
+    }
+
+    public String getNotiz() {
+        return notiz;
+    }
+
+    public void setNotiz(String notiz) {
+        this.notiz = notiz;
     }
 }
