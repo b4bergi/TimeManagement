@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">TimeManagement</string>
     <string name="tvAdd">Eventname:</string>
+    <string name="hint">Beispiel</string>
+    <string name="hintNote">Hier Notiz eingeben</string>
+    <string name="timeExplanation">Wie viele Tage möchten Sie vor dem Event informiert werden?</string>
 </resources>

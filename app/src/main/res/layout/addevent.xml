@@ -6,13 +6,14 @@
 
 
     <LinearLayout
+
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
 
         <TextView
-
+            android:paddingBottom="10sp"
             android:textSize="20sp"
             android:id="@+id/tvAdd"
             android:text="@string/tvAdd"
@@ -20,6 +21,9 @@
             android:layout_height="wrap_content"
             />
         <EditText
+            android:hint="@string/hint"
+            android:paddingTop="5sp"
+            android:paddingBottom="10sp"
             android:id="@+id/textInput"
             android:layout_weight="1"
             android:layout_width="wrap_content"
@@ -31,20 +35,39 @@
 
     <DatePicker
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:id="@+id/Datepicker"
-        android:layout_weight="0.5" />
+        android:background="#23c523"
+        style="@style/AppTheme"
+        android:datePickerMode="calendar"
+        android:headerBackground="#23c523" />
 
-    <NumberPicker
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/numberPicker"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"/>
+    <TableLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+
+            android:text="@string/timeExplanation"
+            android:layout_width="150sp"
+            android:layout_height="wrap_content" />
+
+        <NumberPicker
+            android:layoutDirection="rtl"
+            android:layout_width="wrap_content"
+            android:layout_height="100"
+            android:id="@+id/numberPicker"
+            android:gravity="right"
+            android:background="#23c523" />
+    </TableLayout>
+
 
     <EditText
+        android:hint="@string/hintNote"
         android:id="@+id/note"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-       />
+        android:layout_height="match_parent"
+        android:layout_weight="0"
+        android:gravity="top" />
 </LinearLayout>
