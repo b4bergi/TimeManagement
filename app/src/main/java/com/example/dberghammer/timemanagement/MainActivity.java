@@ -1,5 +1,8 @@
 package com.example.dberghammer.timemanagement;
 
+import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -7,8 +10,13 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import java.io.BufferedReader;
@@ -32,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     Event e=null;
 
     SQLiteDatabase db;
+    SQLiteDatabase dbw;
+    Cursor cursor;
     private static SimpleCursorAdapter cursorAdapter;
 
 
@@ -41,7 +51,11 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       
+
+        DBHelper dbHelper = new DBHelper(this);
+        db = dbHelper.getWritableDatabase();
+
+        readFromDatabase();
 
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
 
@@ -59,6 +73,20 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
     }
 
+    private void readFromDatabase() {
+        cursor = db.query(NotizenTable.TABLE_NAME, NotizenTable.ALL_COLUMS, null, null, null, null, null);
+        cursorAdapter = new SimpleCursorAdapter(this, // Context
+                android.R.layout.two_line_list_item, // Style der ListView
+                cursor, // Cursor
+                new String[] {NotizenTable.TITLE, NotizenTable.DATE}, // Spalten, die in der ListView angezeigt werden sollen
+                new int[] {android.R.id.text1, android.R.id.text2}, // Textfelder, in die die Daten (Manufacturer und Model) kommen
+                0); // Flag
+
+        ListView view = (ListView) findViewById(R.id.terminListe);
+        view.setAdapter(cursorAdapter);
+        cursorAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.optionmenu, menu);
@@ -71,8 +99,6 @@ public class MainActivity extends AppCompatActivity implements Runnable{
             case R.id.menuAdd:
                 add();
                 break;
-            case R.id.menuChooseGroup:
-                break;
             case R.id.menuGroupUpdate:
                 refresh();
                 break;
@@ -80,6 +106,20 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                 return false;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void add() {
+        Intent i=new Intent(this, addEventClass.class);
+        startActivityForResult(i,123 );
+        DBHelper dbHelper = new DBHelper(this);
+        dbw=dbHelper.getWritableDatabase();
+        ContentValues cv=new ContentValues();
+        cv.put(NotizenTable.TITLE,e.getName());
+        cv.put(NotizenTable.DATE,e.getD().toString());
+        cv.put(NotizenTable.TIMEBEFORE,e.getTagev());
+        cv.put(NotizenTable.NOTE,e.getNotiz());
+
+        dbw.insert(NotizenTable.TABLE_NAME,null,cv);
     }
 
     private void refresh() {
@@ -94,18 +134,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         }
     }
 
-    private void add() {
-        try {
-            Intent i=new Intent(this, addEventClass.class);
-            startActivityForResult(i,123 );
 
-           bw.write("add:"+e.getName()+";"+e.getD()+";"+e.getTagev()+";"+e.getNotiz()+":"+gruppe+" \r\n");
-            bw.flush();
-        } catch (IOException ex) {
-           ex.printStackTrace();
-        }
-
-    }
 
     @Override
     protected void onStart() {
@@ -164,5 +193,59 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                 e.printStackTrace();
             }
         }
+    }
+
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        int id = v.getId();
+        if(id == R.id.terminListe) {
+            getMenuInflater().inflate(R.menu.contextmenu, menu);
+        }
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info;
+        int selectedPos;
+        int id;
+        switch(item.getItemId()) {
+            case R.id.delete:
+                info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+                selectedPos = info.position;
+                cursor = db.query(NotizenTable.TABLE_NAME, NotizenTable.ALL_COLUMS, null, null, null, null, null);
+                cursor.move(selectedPos + 1);
+                id = cursor.getInt(cursor.getColumnIndex("_id"));
+                db.execSQL("DELETE FROM " + NotizenTable.TABLE_NAME + " WHERE id = " + id);
+                readFromDatabase();
+                break;
+
+            case R.id.release:
+                try {
+                    final EditText txt=new EditText(this);
+                    AlertDialog.Builder builder =new AlertDialog.Builder(this);
+                    builder.setMessage("Gruppe eingeben")
+                            .setCancelable(false)
+                            .setView(txt)
+                            .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                gruppe=txt.getText().toString();
+                                }
+                            });
+
+                    bw.write("add:"+e.getName()+";"+e.getD()+";"+e.getTagev()+";"+e.getNotiz()+":"+gruppe+" \r\n");
+                    bw.flush();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                break;
+            default:
+
+        }
+
+        return super.onContextItemSelected(item);
+
     }
 }
