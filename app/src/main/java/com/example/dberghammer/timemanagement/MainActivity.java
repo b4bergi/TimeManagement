@@ -30,8 +30,9 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     BufferedReader br;
     String gruppe="gruppe";
     Event e=null;
-    DBHelper dbh;
+
     SQLiteDatabase db;
+    private static SimpleCursorAdapter cursorAdapter;
 
 
 
@@ -40,13 +41,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dbh=new DBHelper(this);
-        db=dbh.getReadableDatabase();
-        Cursor cursor = db.query(NotizenTable.TABLE_NAME, column, null, null, null,
-                null, null);
-
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(this,
-                R.layout.history_list_row, cursor, from, to);
+       
 
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
 
