@@ -13,11 +13,11 @@ public class NotizenTable {
     public static final String[] ALL_COLUMS = { id + " AS _id", TITLE, DATE, TIMEBEFORE, NOTE};
 
     public static final String SQL_CREATE ="CREATE TABLE " +TABLE_NAME+ "(" +
-            id + "INTEGER PRIMARY KEY,"+
-            TITLE+ "TEXT NOT NULL,"+
-            DATE+ "TEXT NOT NULL,"+
-            TIMEBEFORE+ "TEXT NOT NULL,"+
-            NOTE+ "TEXT NOT NULL,"+")";
+            id + " INTEGER PRIMARY KEY,"+
+            TITLE+ " TEXT NOT NULL,"+
+            DATE+ " TEXT NOT NULL,"+
+            TIMEBEFORE+ " TEXT NOT NULL,"+
+            NOTE+ " TEXT NOT NULL"+")";
 
 
 }

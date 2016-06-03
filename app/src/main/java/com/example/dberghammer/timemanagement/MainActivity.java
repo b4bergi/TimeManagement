@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         DBHelper dbHelper = new DBHelper(this);
         dbw=dbHelper.getWritableDatabase();
         ContentValues cv=new ContentValues();
+
         cv.put(NotizenTable.TITLE,e.getName());
         cv.put(NotizenTable.DATE,e.getD().toString());
         cv.put(NotizenTable.TIMEBEFORE,e.getTagev());
@@ -139,6 +140,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     @Override
     protected void onStart() {
         try {
+            socket.close();
             socket=new Socket(ip, port);
             bw=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -153,13 +155,16 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v("++++","1");
        Bundle extras =data.getExtras();
         String name=extras.getString("name");
         Date date=(Date)data.getSerializableExtra("date");
         int tagev=extras.getInt("tagev");
         String note=extras.getString("note");
         e=new Event(note,name,date,tagev);
+        Log.v("++++","2");
         super.onActivityResult(requestCode, resultCode, data);
+        Log.v("++++", "3");
     }
 
     @Override
@@ -231,6 +236,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                             .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+
                                 gruppe=txt.getText().toString();
                                 }
                             });

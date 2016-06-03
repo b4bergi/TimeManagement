@@ -52,6 +52,7 @@ public class addEventClass extends Activity {
         intent.putExtra("date",d);
         intent.putExtra("tagev",tagev);
         intent.putExtra("note",snotiz);
-        finish();
+        setResult(Activity.RESULT_OK, intent);
+        super.onResume();
     }
 }
