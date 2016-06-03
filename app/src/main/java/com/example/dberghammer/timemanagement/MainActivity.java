@@ -82,8 +82,9 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                 new int[] {android.R.id.text1, android.R.id.text2}, // Textfelder, in die die Daten (Manufacturer und Model) kommen
                 0); // Flag
 
-        ListView view = (ListView) findViewById(R.id.terminListe);
-        view.setAdapter(cursorAdapter);
+        ListView terminListe = (ListView) findViewById(R.id.terminListe);
+        registerForContextMenu(terminListe);
+        terminListe.setAdapter(cursorAdapter);
         cursorAdapter.notifyDataSetChanged();
     }
 
@@ -110,17 +111,11 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
     private void add() {
         Intent i=new Intent(this, addEventClass.class);
-        startActivityForResult(i,123 );
+        startActivityForResult(i, 123);
         DBHelper dbHelper = new DBHelper(this);
         dbw=dbHelper.getWritableDatabase();
-        ContentValues cv=new ContentValues();
 
-        cv.put(NotizenTable.TITLE,e.getName());
-        cv.put(NotizenTable.DATE,e.getD().toString());
-        cv.put(NotizenTable.TIMEBEFORE,e.getTagev());
-        cv.put(NotizenTable.NOTE,e.getNotiz());
 
-        dbw.insert(NotizenTable.TABLE_NAME,null,cv);
     }
 
     private void refresh() {
@@ -155,16 +150,23 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.v("++++","1");
+
        Bundle extras =data.getExtras();
         String name=extras.getString("name");
         Date date=(Date)data.getSerializableExtra("date");
         int tagev=extras.getInt("tagev");
         String note=extras.getString("note");
         e=new Event(note,name,date,tagev);
-        Log.v("++++","2");
+        ContentValues cv=new ContentValues();
+        cv.put(NotizenTable.TITLE,e.getName());
+        cv.put(NotizenTable.DATE,e.getD().toString());
+        cv.put(NotizenTable.TIMEBEFORE,e.getTagev());
+        cv.put(NotizenTable.NOTE,e.getNotiz());
+
+        dbw.insert(NotizenTable.TABLE_NAME, null, cv);
+        readFromDatabase();
         super.onActivityResult(requestCode, resultCode, data);
-        Log.v("++++", "3");
+
     }
 
     @Override
@@ -207,6 +209,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         if(id == R.id.terminListe) {
             getMenuInflater().inflate(R.menu.contextmenu, menu);
         }
+        
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
@@ -222,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                 cursor = db.query(NotizenTable.TABLE_NAME, NotizenTable.ALL_COLUMS, null, null, null, null, null);
                 cursor.move(selectedPos + 1);
                 id = cursor.getInt(cursor.getColumnIndex("_id"));
-                db.execSQL("DELETE FROM " + NotizenTable.TABLE_NAME + " WHERE id = " + id);
+                db.execSQL("DELETE FROM " + NotizenTable.TABLE_NAME + " WHERE _id = " + id);
                 readFromDatabase();
                 break;
 
