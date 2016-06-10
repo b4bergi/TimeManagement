@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     Event e=null;
 
     SQLiteDatabase db;
-    SQLiteDatabase dbw;
+    SQLiteDatabase dbr;
     Cursor cursor;
     private static SimpleCursorAdapter cursorAdapter;
 
@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
         DBHelper dbHelper = new DBHelper(this);
         db = dbHelper.getWritableDatabase();
-
+        dbr=dbHelper.getReadableDatabase();
         readFromDatabase();
 
         StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
@@ -113,13 +113,25 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         Intent i=new Intent(this, addEventClass.class);
         startActivityForResult(i, 123);
         DBHelper dbHelper = new DBHelper(this);
-        dbw=dbHelper.getWritableDatabase();
+
 
 
     }
 
     private void refresh() {
         try {
+            final EditText txt=new EditText(this);
+            AlertDialog.Builder builder =new AlertDialog.Builder(this);
+            builder.setMessage("Gruppe eingeben")
+                    .setCancelable(false)
+                    .setView(txt)
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            gruppe=txt.getText().toString();
+                        }
+                    });
             Thread t=new Thread(this);
             t.start();
 
@@ -135,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements Runnable{
     @Override
     protected void onStart() {
         try {
-            socket.close();
             socket=new Socket(ip, port);
             bw=new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
@@ -163,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         cv.put(NotizenTable.TIMEBEFORE,e.getTagev());
         cv.put(NotizenTable.NOTE,e.getNotiz());
 
-        dbw.insert(NotizenTable.TABLE_NAME, null, cv);
+        db.insert(NotizenTable.TABLE_NAME, null, cv);
         readFromDatabase();
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -218,10 +229,11 @@ public class MainActivity extends AppCompatActivity implements Runnable{
         AdapterView.AdapterContextMenuInfo info;
         int selectedPos;
         int id;
+        info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        selectedPos = info.position;
         switch(item.getItemId()) {
             case R.id.delete:
-                info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-                selectedPos = info.position;
+
                 cursor = db.query(NotizenTable.TABLE_NAME, NotizenTable.ALL_COLUMS, null, null, null, null, null);
                 cursor.move(selectedPos + 1);
                 id = cursor.getInt(cursor.getColumnIndex("_id"));
@@ -231,6 +243,10 @@ public class MainActivity extends AppCompatActivity implements Runnable{
 
             case R.id.release:
                 try {
+
+                    Log.v("++++", cursorAdapter.getItem(selectedPos).toString());
+
+
                     final EditText txt=new EditText(this);
                     AlertDialog.Builder builder =new AlertDialog.Builder(this);
                     builder.setMessage("Gruppe eingeben")
@@ -243,7 +259,6 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                                 gruppe=txt.getText().toString();
                                 }
                             });
-
                     bw.write("add:"+e.getName()+";"+e.getD()+";"+e.getTagev()+";"+e.getNotiz()+":"+gruppe+" \r\n");
                     bw.flush();
                 } catch (IOException ex) {
