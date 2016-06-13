@@ -35,7 +35,7 @@ public class addEventClass extends Activity {
         SimpleDateFormat sdf=new SimpleDateFormat("dd-MM-yyyy");
 
         String sname=name.getText().toString();
-        String sdate=(datePicker.getDayOfMonth()+"-"+datePicker.getFirstDayOfWeek()+"-"+datePicker.getFirstDayOfWeek());
+        String sdate=(datePicker.getDayOfMonth()+"-"+datePicker.getMonth()+"-"+datePicker.getYear());
         int tagev= numberPicker.getValue();
         String snotiz= notiz.getText().toString();
         Date d=null;

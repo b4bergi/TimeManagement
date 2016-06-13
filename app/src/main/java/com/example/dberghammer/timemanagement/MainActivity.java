@@ -244,8 +244,12 @@ public class MainActivity extends AppCompatActivity implements Runnable{
             case R.id.release:
                 try {
 
-                    Log.v("++++", cursorAdapter.getItem(selectedPos).toString());
-
+                    Cursor c= db.query(NotizenTable.TABLE_NAME,null,NotizenTable.id+" = "+selectedPos,null,null,null,null);
+                    Log.v("+++++",cursor.getString(1)+", "+cursor.getString(2)+", "+Integer.parseInt(cursor.getString(3))+", "+cursor.getString(4));
+                    e.setName(cursor.getString(1));
+                    e.setD(new Date(cursor.getString(2)));
+                    e.setTagev(Integer.parseInt(cursor.getString(3)));
+                    e.setNotiz(cursor.getString(4));
 
                     final EditText txt=new EditText(this);
                     AlertDialog.Builder builder =new AlertDialog.Builder(this);
@@ -255,10 +259,10 @@ public class MainActivity extends AppCompatActivity implements Runnable{
                             .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-
                                 gruppe=txt.getText().toString();
                                 }
                             });
+                    builder.create();
                     bw.write("add:"+e.getName()+";"+e.getD()+";"+e.getTagev()+";"+e.getNotiz()+":"+gruppe+" \r\n");
                     bw.flush();
                 } catch (IOException ex) {
