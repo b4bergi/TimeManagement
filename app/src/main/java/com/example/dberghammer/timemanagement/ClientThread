@@ -1,0 +1,60 @@
+package com.example.dberghammer.timemanagement;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+/**
+ * Created by tmaier on 17.06.2016.
+ */
+public class ClientThread extends Thread implements Runnable{
+
+    BufferedReader br;
+
+
+
+    public  ClientThread(Socket socket)
+    {
+        try {
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+
+        while (true) {
+
+            
+            try {
+                if(br.readLine()==null)
+                {
+                    return;
+                }
+                Date d=null;
+                String ev=br.readLine();
+                String []events=ev.split(":");
+                SimpleDateFormat sdf=new SimpleDateFormat("dd-MM-yyyy");
+                try {
+                    d= sdf.parse(events[2]);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                Event e=new Event(events[0],events[1], d ,Integer.parseInt(events[3]));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public synchronized void start() {
+        super.start();
+    }
+}
